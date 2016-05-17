@@ -1,0 +1,5 @@
+GITVERSION = git rev-list --tags --max-count=1
+GITTAG = git describe --always --tags ${GITVERSION}
+GOVERSION = go version
+BUILD_NUMBER = ${BUILD_NUMBER}
+BRANCH_NAME = ${BRANCH_NAME}
