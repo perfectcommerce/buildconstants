@@ -3,8 +3,10 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"errors"
 	"flag"
 	"go/format"
+	"io"
 	"os"
 	"os/exec"
 	"path"
@@ -26,6 +28,56 @@ const (
 	templatePostlude = ")"
 )
 
+type cmdReader struct {
+	scanner   *bufio.Scanner
+	separator string
+}
+
+// newCmdReader creates a cmdReader for making cmds from r
+func newCmdReader(r io.Reader, sep string) *cmdReader {
+	return &cmdReader{scanner: bufio.NewScanner(r), separator: sep}
+}
+
+// read creates the cmds from the reader originally passed in.
+//   Each cmd will be separated from their Line by the r's sep.
+func (r cmdReader) read() ([]cmd, error) {
+	var cmds []cmd
+	for r.scanner.Scan() {
+		k, v, err := lineSplit(r.scanner.Text(), r.separator)
+		if err != nil {
+			continue
+		}
+		c := parseCmd(k, v)
+		cmds = append(cmds, c)
+	}
+	return cmds, nil
+}
+
+// lineSplit splits the line by sep, err on invalid lines
+func lineSplit(line, sep string) (string, string, error) {
+	splits := strings.Split(line, sep)
+	if len(splits) < 2 {
+		return "", "", errors.New("invalid line")
+	}
+	rest := strings.TrimSpace(strings.Join(splits[1:], " "))
+	return splits[0], rest, nil
+}
+
+// parseCmd builds a cmd from the key and val, and checks if it is just an
+//   environment variable or a command
+func parseCmd(key, val string) cmd {
+	return cmd{
+		Var:  strings.TrimSpace(key),
+		Line: val,
+		echo: isEnvVar(val),
+	}
+}
+
+// isEnvVar checks if s looks like an environment variable
+func isEnvVar(s string) bool {
+	return strings.HasPrefix(s, "$")
+}
+
 type cmd struct {
 	Var  string
 	Line string
@@ -42,22 +94,9 @@ func cmdRead(cmdfile string) ([]cmd, error) {
 		return []cmd{}, err
 	}
 	defer f.Close()
-	var cmds []cmd
-	scanner := bufio.NewScanner(f)
-	for scanner.Scan() {
-		splits := strings.Split(scanner.Text(), "=")
-		if len(splits) < 2 {
-			continue
-		}
-		line := strings.TrimSpace(strings.Join(splits[1:], " "))
-		c := cmd{
-			Var:  strings.TrimSpace(splits[0]),
-			Line: line,
-			echo: strings.HasPrefix(line, "$"),
-		}
-		cmds = append(cmds, c)
-	}
-	return cmds, nil
+
+	cr := newCmdReader(f, "=")
+	return cr.read()
 }
 
 // envTemplate builds the template string of the environment variables.
