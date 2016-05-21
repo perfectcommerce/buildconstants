@@ -60,7 +60,9 @@ func cmdRead(cmdfile string) ([]cmd, error) {
 	return cmds, nil
 }
 
-// operates on inputs since it needs to be in the same order
+// envTemplate builds the template string of the environment variables.
+//  It needs to be in the same order in case a later command depends on
+//  the value of a previous command
 func envTemplate(ins []cmd) string {
 	var s string
 	for _, in := range ins {
@@ -69,6 +71,7 @@ func envTemplate(ins []cmd) string {
 	return s
 }
 
+// do the cmd by expanding in the shell and running (as needed)
 func do(command cmd) (string, error) {
 	expanded := os.Expand(command.Line, os.Getenv)
 	var out string
@@ -105,7 +108,7 @@ func pkg() string {
 
 func main() {
 
-	cmdfile := flag.String("i", "commands.txt", "output file")
+	cmdfile := flag.String("i", "commands.txt", "file of commands to be run")
 	fname := flag.String("o", "", "output file")
 	packageName := flag.String("package", pkg(), "package the generated file will be in.")
 	flag.Parse()
