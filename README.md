@@ -41,7 +41,7 @@ example.go:
 
 ##Arguments 
    
-    -o output file name (defaults to buildconstants_generated.go)
+    -o output file name (writes to stdout if not specified)
     -package the package the file will be in (defaults to current package)
     -i input file of commands 
 
