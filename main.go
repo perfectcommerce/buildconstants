@@ -94,6 +94,7 @@ func do(command cmd) (string, error) {
 	return val, nil
 }
 
+// get current package's name
 func pkg() string {
 	pkgCmd := exec.Command("go", "list", ".")
 	out, err := pkgCmd.Output()
@@ -111,13 +112,6 @@ func main() {
 	packageName := flag.String("package", pkg(), "package the generated file will be in.")
 	flag.Parse()
 
-	// incmds := []cmd{
-	// 	cmd{Var: "GITVERSION", Line: "git rev-list --tags --max-count=1"},
-	// 	cmd{Var: "GITTAG", Line: "git describe --always --tags ${GITVERSION}"},
-	// 	cmd{Var: "GOVERSION", Line: "go version"},
-	// 	cmd{Var: "BUILD_NUMBER", echo: true},
-	// 	cmd{Var: "BRANCH_NAME", echo: true},
-	// }
 	incmds, err := cmdRead(*cmdfile)
 	if err != nil {
 		os.Exit(1)
@@ -125,15 +119,11 @@ func main() {
 
 	outcmds := make(map[string]string, len(incmds)+1) //since we add GOPKG
 	outcmds["GOPKG"] = *packageName
-	if err != nil {
-		os.Exit(1)
-	}
 
 	for _, cmd := range incmds {
 		val, err := do(cmd)
 		if err != nil {
 			val = ""
-			// os.Exit(1)
 		}
 		outcmds[cmd.Var] = val
 	}
