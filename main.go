@@ -21,8 +21,10 @@ const (
 
 package {{.GOPKG}}
 
+// generated constants
 const (
 	MustRunBuildConstants = 0
+
 `
 
 	templatePostlude = ")"
