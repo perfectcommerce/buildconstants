@@ -48,8 +48,6 @@ example.go:
 ##Note:
 Don't use this to put date or time related data in constants, your builds should still be [reproducible](https://reproducible-builds.org/), which is necessary for using tools like [bazel](http://bazel.io).
 
-##TODO:
-Check against newer versions
 ##License 
 
 MIT 
