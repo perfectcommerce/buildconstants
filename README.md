@@ -1,4 +1,4 @@
-##buildconstants 
+## buildconstants 
 ### for putting build info (and other compile-time values) in Go constants
 
 Sometimes it can be useful to include constants that were available at compile-time, the build number, git branch, etc.
@@ -9,7 +9,7 @@ The goal is to be able to include this in a go generate comment so the file will
 
 It does include a constant `MustRunBuildConstants` so that the file with the go generate statement can be used to force a useful compiler error 
 
-##Example of using with go generate
+## Example of using with go generate
 
 example.go:
 
@@ -20,7 +20,7 @@ example.go:
     
 
 
-##Example:
+## Example:
   Given a text file with shell commands, like so:
     
     GOVERSION = go version
@@ -39,17 +39,17 @@ example.go:
     
   Which then allows you to use `currentPackage.GOVERSION` in your code.
 
-##Arguments 
+## Arguments 
    
     -o output file name (writes to stdout if not specified)
     -package the package the file will be in (defaults to current package)
     -i input file of commands 
 
-##Note:
+## Note:
 Don't use this to put date or time related data in constants, your builds should still be [reproducible](https://reproducible-builds.org/), which is necessary for using tools like [bazel](http://bazel.io).
 
-##TODO:
+## TODO:
 Check against newer versions
-##License 
+## License 
 
 MIT 
